@@ -175,7 +175,7 @@ class postgres_driver_ADOConnection extends ADOConnection
 
 	function Affected_Rows()
 	{
-		return @pg_affected_rows($this->record_set);
+		return @pg_affected_rows($this->record_set->recordId);
 	} 
 
 	/**
@@ -187,7 +187,7 @@ class postgres_driver_ADOConnection extends ADOConnection
 
 	function Insert_ID()
 	{
-		return @pg_getlastoid($this->record_set);
+		return @pg_last_oid($this->record_set->recordId );
 	}
 
 	/**
@@ -375,11 +375,12 @@ class postgres_driver_ADOConnection extends ADOConnection
 			return $false;
 		} 
 
-		if (@pg_numfields( $resultId ) <= 0) { // return simplified recordset for inserts/updates/deletes with lower overhead
-			$recordset = new ADORecordSet_empty();
-			$this->record_set = $recordset;
-			return $recordset;
-		}
+		//this causes problems with things like Affected_Rows(), which no longer have access to $resultId
+		//if (@pg_numfields( $resultId ) <= 0) { // return simplified recordset for inserts/updates/deletes with lower overhead
+		//	$recordset = new ADORecordSet_empty();
+		//	$this->record_set = $recordset;
+		//	return $recordset;
+		//}
 
 		$resultset_name = $this->last_module_name . "_ResultSet";
 		$recordset = new $resultset_name( $resultId, $this->connectionId );
@@ -396,12 +397,12 @@ class postgres_driver_ADOConnection extends ADOConnection
 			case ADODB_FETCH_BOTH:$recordset->fetchMode = PGSQL_BOTH; break;
 		}
 
-		$recordset->_numOfRows = @pg_numrows( $resultId );
+		$recordset->_numOfRows = @pg_num_rows( $resultId );
 		if( $recordset->_numOfRows == 0)
 		{
 			$recordset->EOF = true;
 		}
-		$recordset->_numOfFields = @pg_numfields( $resultId );
+		$recordset->_numOfFields = @pg_num_fields( $resultId );
 		$recordset->_fetch();
 
 		return $recordset;
@@ -648,9 +649,9 @@ class postgres_driver_ResultSet
 	function FetchField($fieldOffset = -1) 
 	{
 		$fieldObject= new ADOFieldObject();
-		$fieldObject->name = @pg_fieldname($this->resultId, $fieldOffset);
-		$fieldObject->type = @pg_fieldtype($this->resultId, $fieldOffset);
-		$fieldObject->max_length = @pg_fieldsize($this->resultId, $fieldOffset);
+		$fieldObject->name = @pg_field_name($this->resultId, $fieldOffset);
+		$fieldObject->type = @pg_field_type($this->resultId, $fieldOffset);
+		$fieldObject->max_length = @pg_field_size($this->resultId, $fieldOffset);
 		return $fieldObject;
 	}
 }
