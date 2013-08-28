@@ -278,13 +278,13 @@ class mysql_perfmon_ADOConnection extends mysql_perfmon_EXTENDER
 	
 	/*
 		Use session variable to store Hit percentage, because MySQL
-		does not remember last value of SHOW INNODB STATUS hit ratio
+		does not remember last value of SHOW ENGINE INNODB STATUS hit ratio
 		
-		# 1st query to SHOW INNODB STATUS
+		# 1st query to SHOW ENGINE INNODB STATUS
 		0.00 reads/s, 0.00 creates/s, 0.00 writes/s
 		Buffer pool hit rate 1000 / 1000
 		
-		# 2nd query to SHOW INNODB STATUS
+		# 2nd query to SHOW ENGINE INNODB STATUS
 		0.00 reads/s, 0.00 creates/s, 0.00 writes/s
 		No buffer pool activity since the last printout
 	*/
@@ -295,7 +295,7 @@ class mysql_perfmon_ADOConnection extends mysql_perfmon_EXTENDER
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$rs = $this->Execute('show innodb status');
+		$rs = $this->Execute('SHOW ENGINE INNODB STATUS');
 ;
 		$ADODB_FETCH_MODE = $save;
 		
